@@ -17,7 +17,7 @@
 	<param name="uav_id" type="int" value="0"/>
 	<node name = "iusc_maze" pkg="iusc_maze" type="iusc_maze_node" output="screen"/>
 	<!-- 坐标转换服务 -->
-	<node pkg="iusc_maze" type="map2local_server" name="map2local_server" output="screen"/>
+	<node pkg="iusc_maze" type="map2local_server" name="map2local_server" output="screen"/> 
 
 	<!-- <node name = "uav1" pkg="iusc_maze" type="iusc_maze_node" output="screen">
 		<param name="initial_x" type="double" value="-1.0"/>
