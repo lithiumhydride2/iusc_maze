@@ -34,20 +34,23 @@ int main(int argc, char **argv){
     //     ROS_ERROR_ONCE("Wrong number of arguments");
     //     return 1;
     // }
-    ros::init(argc,argv,"map2local_server",ros::init_options::AnonymousName);
+    ros::service::waitForService("mavros/get_loggers");
+    ros::init(argc,argv,"map2local_server");
     ros::NodeHandle nh;
+    int uav_id = 1;
+    uav_id = atoi(argv[1]);
 
     // 读取初始位置的经纬度
     ros::Rate loop_rate(50);
     double init_lat = 0.0, init_lon = 0.0;
     ros::Subscriber lalo_sub = nh.subscribe<sensor_msgs::NavSatFix>("mavros/global_position/global", 1, boost::bind(&lalo_callback, _1, &init_lat, &init_lon));
-    cout << "----Waiting GPS in map 2 local service----" << endl;
+    cout << "uav " << uav_id << "----Waiting GPS in map 2 local service----" << endl;
     while(!gps_init_done)
     {
         loop_rate.sleep();
         ros::spinOnce();
     }
-    cout << "----gps init done!! in map 2 local service----" << endl;
+    cout << "uav " << uav_id << "----gps init done!! in map 2 local service----" << endl;
     cout << "lat: " << init_lat << ", lon: " << init_lon << endl;
     lalo_sub.shutdown();
 
@@ -57,7 +60,7 @@ int main(int argc, char **argv){
     vector<Eigen::Vector2d> MSN_XY;
     int point_num = 0;
     nh.getParam("point_num", point_num);
-    cout << "point_num in map 2 local service= " << point_num << endl;
+    cout << "uav " << uav_id <<  "point_num in map 2 local service= " << point_num << endl;
 
     for(int i = 0; i< point_num; i++)
     {
