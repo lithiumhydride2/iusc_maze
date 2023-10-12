@@ -34,7 +34,7 @@ int main(int argc, char **argv){
     //     ROS_ERROR_ONCE("Wrong number of arguments");
     //     return 1;
     // }
-    ros::init(argc, argv,"map2local_server");
+    ros::init(argc,argv,"map2local_server",ros::init_options::AnonymousName);
     ros::NodeHandle nh;
 
     // 读取初始位置的经纬度
