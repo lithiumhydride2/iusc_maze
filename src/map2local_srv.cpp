@@ -34,23 +34,25 @@ int main(int argc, char **argv){
     //     ROS_ERROR_ONCE("Wrong number of arguments");
     //     return 1;
     // }
-    ros::service::waitForService("mavros/get_loggers");
     ros::init(argc,argv,"map2local_server");
     ros::NodeHandle nh;
-    int uav_id = 1;
+    ros::service::waitForService("mavros/get_loggers",10.0);
+    int uav_id = 0 ;
     uav_id = atoi(argv[1]);
 
     // 读取初始位置的经纬度
     ros::Rate loop_rate(50);
+    ros::Rate rate1(1.0);
     double init_lat = 0.0, init_lon = 0.0;
     ros::Subscriber lalo_sub = nh.subscribe<sensor_msgs::NavSatFix>("mavros/global_position/global", 1, boost::bind(&lalo_callback, _1, &init_lat, &init_lon));
-    cout << "uav " << uav_id << "----Waiting GPS in map 2 local service----" << endl;
+    cout << " --- uav " << uav_id << " ----Waiting GPS in map 2 local service----" << endl;
     while(!gps_init_done)
     {
-        loop_rate.sleep();
+        rate1.sleep();
+        cout << " uav " << uav_id << " wait for gps init done" << endl;
         ros::spinOnce();
     }
-    cout << "uav " << uav_id << "----gps init done!! in map 2 local service----" << endl;
+    cout << "--- uav " << uav_id << "----gps init done!! in map 2 local service----" << endl;
     cout << "lat: " << init_lat << ", lon: " << init_lon << endl;
     lalo_sub.shutdown();
 
@@ -58,9 +60,16 @@ int main(int argc, char **argv){
     Eigen::Vector2d ENU_LALO(init_lat, init_lon);
     vector<Eigen::Vector2d> MSN_LALO;
     vector<Eigen::Vector2d> MSN_XY;
+    // wait for message setdown
+    
+    string param_name = "/uav" + std::to_string(uav_id) + "/point_num";
+    while( !ros::param::has(param_name) ) {
+        cout << " wait for param : " << param_name << endl; 
+        rate1.sleep();
+    }
     int point_num = 0;
-    nh.getParam("point_num", point_num);
-    cout << "uav " << uav_id <<  "point_num in map 2 local service= " << point_num << endl;
+    nh.getParam(param_name, point_num);
+    cout << "--- uav " << uav_id <<  "point_num in map 2 local service= " << point_num << endl;
 
     for(int i = 0; i< point_num; i++)
     {
